@@ -52,6 +52,21 @@ def handle_get_projects(client: TickTick, hass: HomeAssistant) -> Callable:
     return handler
 
 
+def handle_get_today_tasks(client: TickTick, hass: HomeAssistant) -> Callable:
+    def handler(call: ServiceCall):
+        tasks = client.get_today_tasks()
+        task_list = "".join(
+            [f"<li>{title}: {id}</li>" for id, title in tasks.items()]
+        )
+        hass.components.persistent_notification.async_create(
+            f"The following tasks were found: <ul>{task_list}</ul>",
+            title="TickTick Today Tasks",
+            notification_id="ticktick_tasks_list",
+        )
+
+    return handler
+
+
 def setup(hass: HomeAssistant, config):
     """Set up the TickTick integration."""
     return True
@@ -72,6 +87,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.services.async_register(DOMAIN, "add_task", handle_add_task(client))
     hass.services.async_register(
         DOMAIN, "get_projects", handle_get_projects(client, hass)
+    )
+    hass.services.async_register(
+        DOMAIN, "get_today_tasks", handle_get_today_tasks(client, hass)
     )
 
     return True
