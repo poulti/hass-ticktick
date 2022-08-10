@@ -61,6 +61,14 @@ class TickTick:
             projects[raw_project.get("id")] = raw_project.get("name")
         return projects
 
+    def get_today_tasks(self) -> Dict[str, str]:
+        """Return a dict of all tasks due today with ID and Title"""
+        resp = self._session.get(f"https://{TICKTICK_HOST}{PROJECT_URL}")
+        tasks = {}
+        for raw_task_today in resp.json().get("syncTaskBean.update[?(@.dueDate=='2022-08-09T23:00:00.000+0000')]"):
+            tasks[raw_task_today.get("id")] = raw_task_today.get("title")
+        return tasks
+
     def add_task(
         self,
         task_title: str,

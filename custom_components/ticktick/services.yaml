@@ -11,3 +11,5 @@ add_task:
       description: Datetime when this task is due.
 get_projects:
   description: "Get a List of all Projects and their IDs"
+get_today_tasks:
+  description: "Get a List of all Tasks due today"
