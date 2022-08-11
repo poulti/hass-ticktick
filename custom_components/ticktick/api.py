@@ -2,6 +2,7 @@
 import datetime
 import json
 from typing import Dict
+from jsonpath_ng import parse
 
 import requests
 
@@ -65,7 +66,9 @@ class TickTick:
         """Return a dict of all tasks due today with ID and Title"""
         resp = self._session.get(f"https://{TICKTICK_HOST}{PROJECT_URL}")
         tasks = {}
-        for raw_task_today in resp.json().get("syncTaskBean.update[?(@.dueDate=='2022-08-09T23:00:00.000+0000')]"):
+        jsonpath_expr= parse('syncTaskBean.update') 
+        #FIXME: jsonpath-ng does not recognise the query [?(@.dueDate=="2022-08-09T23:00:00.000+0000")]
+        for raw_task_today in jsonpath_expr.find(resp.json()):
             tasks[raw_task_today.get("id")] = raw_task_today.get("title")
         return tasks
 
