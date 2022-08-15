@@ -70,9 +70,7 @@ class TickTick:
         # and converting to datetime_to_json for ticktick format
         tz_local = datetime.datetime.now().astimezone().tzinfo
         today_utc = datetime.datetime.combine(datetime.date.today(), datetime.time(), tz_local).astimezone(datetime.timezone.utc)
-        print(today_utc)
         today_ticktick_format = TickTick.datetime_to_json(today_utc)
-        print(today_ticktick_format)
         # Filter TickTick data to up to date tasks
         #FIXME: may miss some task being updated?
         jsonpath_expr = parse('$.syncTaskBean.update[?(@.dueDate=="'+today_ticktick_format+'")]') 
