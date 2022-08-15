@@ -12,4 +12,4 @@ add_task:
 get_projects:
   description: "Get a List of all Projects and their IDs"
 get_today_tasks:
-  description: "Get a List of all Tasks due today"
+  description: "Get a List of all Tasks due today and their Priority"

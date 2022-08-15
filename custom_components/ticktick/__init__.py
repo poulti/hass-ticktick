@@ -56,7 +56,7 @@ def handle_get_today_tasks(client: TickTick, hass: HomeAssistant) -> Callable:
     def handler(call: ServiceCall):
         tasks = client.get_today_tasks()
         task_list = "".join(
-            [f"<li>{title}: {id}</li>" for id, title in tasks.items()]
+            [f"<li>{atask['title']}: {atask['priority']}</li>" for atask in tasks]
         )
         hass.components.persistent_notification.async_create(
             f"The following tasks were found: <ul>{task_list}</ul>",

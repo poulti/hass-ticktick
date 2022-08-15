@@ -2,7 +2,7 @@
 import datetime
 import json
 from typing import Dict
-from jsonpath_ng import parse
+from jsonpath_ng.ext import parse
 
 import requests
 
@@ -62,14 +62,25 @@ class TickTick:
             projects[raw_project.get("id")] = raw_project.get("name")
         return projects
 
-    def get_today_tasks(self) -> Dict[str, str]:
-        """Return a dict of all tasks due today with ID and Title"""
+    def get_today_tasks(self) -> list:
+        """Return a list of dict for all tasks due today Title and Priority"""
         resp = self._session.get(f"https://{TICKTICK_HOST}{PROJECT_URL}")
-        tasks = {}
-        jsonpath_expr= parse('syncTaskBean.update') 
-        #FIXME: jsonpath-ng does not recognise the query [?(@.dueDate=="2022-08-09T23:00:00.000+0000")]
+        tasks = []
+        # Due date is today at midnight local time, converting to UTC
+        # and converting to datetime_to_json for ticktick format
+        tz_local = datetime.datetime.now().astimezone().tzinfo
+        today_utc = datetime.datetime.combine(datetime.date.today(), datetime.time(), tz_local).astimezone(datetime.timezone.utc)
+        print(today_utc)
+        today_ticktick_format = TickTick.datetime_to_json(today_utc)
+        print(today_ticktick_format)
+        # Filter TickTick data to up to date tasks
+        #FIXME: may miss some task being updated?
+        jsonpath_expr = parse('$.syncTaskBean.update[?(@.dueDate=="'+today_ticktick_format+'")]') 
         for raw_task_today in jsonpath_expr.find(resp.json()):
-            tasks[raw_task_today.get("id")] = raw_task_today.get("title")
+            atask = {} # dict
+            atask['title'] = raw_task_today.value['title']
+            atask['priority'] = raw_task_today.value['priority']
+            tasks.append(atask)
         return tasks
 
     def add_task(
